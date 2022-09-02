@@ -1,23 +1,52 @@
-import logo from './logo.svg';
 import './App.css';
+import { gql, useSubscription } from "@apollo/client";
+import LikeCountComponent from "./components/likeCount";
+
+const GET_MOVIES = gql`
+  subscription {
+    movies {
+      id
+      created_at
+      name
+      image
+    }
+  }
+`;
+
+
 
 function App() {
+  const { data, loading } = useSubscription(GET_MOVIES);
+  if (loading) {
+    return <div>Loading</div>;
+  }
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
+        
         <p>
-          Edit <code>src/App.js</code> and save to reload.
+          Movies list
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+
       </header>
+      {
+        data && data.movies && data.movies.length ?
+        data.movies.map((movie, index) => {
+          return (
+              <div className="movie-box" key={index}>
+                <div className="movie-box-header">
+                </div>
+                <div className="movie-box-body">
+                  <img alt={movie.name} className="movie-image" src={movie.image} />
+                </div>
+                <div className="movie-box-footer">
+                  {movie.name}
+                  <div className="like-button"><LikeCountComponent movie={movie} /></div>
+                </div>
+              </div>
+          )
+        }) : "No movies"
+      }
     </div>
   );
 }
